@@ -10,6 +10,7 @@ import (
 	"github.com/taurusgroup/multi-party-sig/internal/test"
 	"github.com/taurusgroup/multi-party-sig/pkg/math/curve"
 	"github.com/taurusgroup/multi-party-sig/pkg/party"
+	"github.com/taurusgroup/multi-party-sig/pkg/taproot"
 )
 
 func TestTaprootConfigCodecRoundTrip(t *testing.T) {
@@ -119,7 +120,7 @@ func TestSchnorrKeyGenServiceImpl_KeyGenTaproot(t *testing.T) {
 
 	require.Len(t, shares, len(partyIDs))
 
-	var publicKey []byte
+	var publicKey taproot.PublicKey
 	for _, id := range partyIDs {
 		cfg, err := DecodeTaprootConfigFromString(shares[id])
 		require.NoError(t, err)
