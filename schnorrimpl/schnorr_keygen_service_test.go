@@ -1,4 +1,4 @@
-package multiparty
+package schnorrimpl
 
 import (
 	"encoding/base64"
@@ -13,7 +13,6 @@ import (
 	"github.com/taurusgroup/multi-party-sig/pkg/protocol"
 	"github.com/taurusgroup/multi-party-sig/pkg/taproot"
 	"github.com/taurusgroup/multi-party-sig/protocols/frost"
-	frostkeygen "github.com/taurusgroup/multi-party-sig/protocols/frost/keygen"
 )
 
 func TestSchnorrKeyGenServiceImpl_KeyGenAndSignTaproot(t *testing.T) {
@@ -122,7 +121,7 @@ func TestTaprootKeyShareStorageCodec(t *testing.T) {
 	require.True(t, cfg.PrivateShare.Equal(decoded.PrivateShare))
 }
 
-func runUpperTaprootKeygen(t *testing.T, services map[party.ID]*SchnorrKeyGenServiceImpl, partyIDs []party.ID, sessionContext string) (map[party.ID]string, map[party.ID]*frostkeygen.TaprootConfig) {
+func runUpperTaprootKeygen(t *testing.T, services map[party.ID]*SchnorrKeyGenServiceImpl, partyIDs []party.ID, sessionContext string) (map[party.ID]string, map[party.ID]*frost.TaprootConfig) {
 	t.Helper()
 	stateIDs := make(map[party.ID]string, len(partyIDs))
 	inbox := make(map[party.ID][]string, len(partyIDs))
@@ -170,7 +169,7 @@ func runUpperTaprootKeygen(t *testing.T, services map[party.ID]*SchnorrKeyGenSer
 	}
 	require.Len(t, shares, len(partyIDs))
 
-	configs := make(map[party.ID]*frostkeygen.TaprootConfig, len(shares))
+	configs := make(map[party.ID]*frost.TaprootConfig, len(shares))
 	for id, encoded := range shares {
 		cfg, err := DecodeTaprootKeyShareFromStorage(encoded)
 		require.NoError(t, err)
@@ -202,7 +201,7 @@ func callUpperKeygen(t *testing.T, service *SchnorrKeyGenServiceImpl, req Schnor
 func routeUpperMessages(t *testing.T, partyIDs []party.ID, inbox map[party.ID][]string, outbound []string) {
 	t.Helper()
 	for _, encoded := range outbound {
-		msg, err := frostkeygen.DecodeProtocolMessageFromString(encoded)
+		msg, err := decodeProtocolMessageFromString(encoded)
 		require.NoError(t, err)
 		for _, id := range partyIDs {
 			if msg.IsFor(id) {
